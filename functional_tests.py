@@ -2,12 +2,18 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import unittest
+
 class NewVisitorTest(unittest.TestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
 
     def tearDown(self):
         self.browser.quit()
+
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element(By.ID, 'id_list_table')
+        rows = table.find_elements(By.TAG_NAME, 'tr')
+        self.assertIn(row_text, [row.text for row in rows], f"Row '{row_text}' not found in table")
 
     def test_can_start_a_list_and_retrieve_it_later(self):
         # User visits the home page
@@ -29,33 +35,21 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         self.browser.implicitly_wait(3)
 
-        table = self.browser.find_element(By.ID, 'id_list_table')
-        rows = table.find_elements(By.TAG_NAME, 'tr')
-        self.assertTrue(
-            any(row.text == '1: Buy flowers' for row in rows),
-            "New to-do item did not appear in the table"
-        )
+        # Use helper to check for first item
+        self.check_for_row_in_list_table('1: Buy flowers')
 
         inputbox = self.browser.find_element(By.ID, 'id_new_item')
         inputbox.send_keys('Give a gift to Lisi')
         inputbox.send_keys(Keys.ENTER)
         self.browser.implicitly_wait(3)
 
-        # The page updates again, and now shows both items in the list
-        table = self.browser.find_element(By.ID, 'id_list_table')
-        rows = table.find_elements(By.TAG_NAME, 'tr')
-        self.assertTrue(
-            any(row.text == '1: Buy flowers' for row in rows),
-            "New to-do item did not appear in the table"
-        )
-        self.assertTrue(
-            any(row.text == '2: Give a gift to Lisi' for row in rows),
-            "New to-do item did not appear in the table"
-        )
+        # Use helper to check for both items
+        self.check_for_row_in_list_table('1: Buy flowers')
+        self.check_for_row_in_list_table('2: Give a gift to Lisi')
 
         self.fail("Finish the test!")
 
 if __name__ == '__main__':
-    unittest.main()  # Suppress warnings from Selenium
+    unittest.main()
 
 
