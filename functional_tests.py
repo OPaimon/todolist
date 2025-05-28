@@ -1,11 +1,21 @@
 from selenium import webdriver
-# from chromedriver_py import binary_path
-# google-chrome-stable 
-# options = webdriver.ChromeOptions()
-# options.binary_location = '/usr/sbin/google-chrome-stable'
-# Create a new instance of the Chrome driver
+import unittest
+class NewVisitorTest(unittest.TestCase):
+    def setUp(self):
+        self.browser = webdriver.Chrome()
 
-browser = webdriver.Chrome()
-browser.get('http://localhost:8000')
+    def tearDown(self):
+        self.browser.quit()
 
-assert 'Django' in browser.page_source
+    def test_can_start_a_list_and_retrieve_it_later(self):
+        # User visits the home page
+        self.browser.get('http://localhost:8000')
+
+        # Check if the title contains 'To-Do'
+        self.assertIn('To-Do', self.browser.title), "Browser title was '%s'" % self.browser.title
+        self.fail('Finish the test!')
+
+if __name__ == '__main__':
+    unittest.main()  # Suppress warnings from Selenium
+
+
