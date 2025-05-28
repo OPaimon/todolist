@@ -36,7 +36,24 @@ class NewVisitorTest(unittest.TestCase):
             "New to-do item did not appear in the table"
         )
 
-        self.fail("Finish the test! Add more items and check the list.")
+        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox.send_keys('Give a gift to Lisi')
+        inputbox.send_keys(Keys.ENTER)
+        self.browser.implicitly_wait(3)
+
+        # The page updates again, and now shows both items in the list
+        table = self.browser.find_element(By.ID, 'id_list_table')
+        rows = table.find_elements(By.TAG_NAME, 'tr')
+        self.assertTrue(
+            any(row.text == '1: Buy flowers' for row in rows),
+            "New to-do item did not appear in the table"
+        )
+        self.assertTrue(
+            any(row.text == '2: Give a gift to Lisi' for row in rows),
+            "New to-do item did not appear in the table"
+        )
+
+        self.fail("Finish the test!")
 
 if __name__ == '__main__':
     unittest.main()  # Suppress warnings from Selenium
