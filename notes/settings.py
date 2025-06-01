@@ -24,9 +24,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bxl!mm4_dz2k70eor12bsf2_7(j_e4s2tong0shem+4r+dngbq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# 获取服务器的主机名/域名
+# 生产环境通常会设置这个环境变量，例如：DJANGO_ALLOWED_HOSTS="azure.paimoe.tech,www.paimoe.tech"
+# 本地开发时可以设置默认值，或者只允许 localhost
+ALLOWED_HOSTS_STR = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
 
-ALLOWED_HOSTS = []
+# 获取 CSRF 信任的来源
+# 生产环境通常会设置这个环境变量，例如：DJANGO_CSRF_TRUSTED_ORIGINS="https://azure.paimoe.tech,https://www.paimoe.tech"
+# 本地开发时可以设置默认值，或者只允许 http://localhost:8000
+CSRF_TRUSTED_ORIGINS_STR = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', 'http://localhost:8000,https://localhost:8000')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in CSRF_TRUSTED_ORIGINS_STR.split(',') if origin.strip()]
+
+# 确保DEBUG=False 在生产环境中
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
 
 
 # Application definition
