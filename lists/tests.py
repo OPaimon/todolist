@@ -6,6 +6,24 @@ from django.urls import resolve
 from lists.views import home_page
 from lists.models import Item, List
 
+class NewItemTest(TestCase):
+
+    def test_can_save_a_POST_request_to_an_existing_list(self):
+        list_ = List.objects.create()
+        response = self.client.post(f'/lists/{list_.id}/new_item', data={'item_text': 'A new item for an existing list'})
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new item for an existing list')
+        self.assertEqual(new_item.list, list_)
+
+    def test_redirects_to_list_view(self):
+        list_ = List.objects.create()
+        response = self.client.post(f'/lists/{list_.id}/new_item', data={'item_text': 'A new item for an existing list'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], f'/lists/{list_.id}/')
+
 class ListAndItemModelTest(TestCase):
     def test_saving_and_retrieving_items(self):
         list_ = List()
@@ -41,19 +59,34 @@ class HomePageTest(TestCase):
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
-        response = self.client.get('/lists/the-new-page/')
+        list_ = List.objects.create()
+        response = self.client.get(f'/lists/{list_.id}/')
         self.assertTemplateUsed(response, 'list.html')
 
-    def test_display_alls_items(self):
-        list_ = List.objects.create()
+    def test_displays_only_items_for_that_list(self):
+        list1 = List.objects.create()
+        Item.objects.create(text='Item 1', list=list1)
+        Item.objects.create(text='Item 2', list=list1)
 
-        Item.objects.create(text='Item 1', list=list_)
-        Item.objects.create(text='Item 2', list=list_)
+        list2 = List.objects.create()
+        Item.objects.create(text='Item A', list=list2)
+        Item.objects.create(text='Item B', list=list2)
 
-        response = self.client.get('/lists/the-new-page/')
+        response = self.client.get(f'/lists/{list1.id}/')
 
         self.assertContains(response, 'Item 1')
         self.assertContains(response, 'Item 2')
+        self.assertNotContains(response, 'Item A')
+        self.assertNotContains(response, 'Item B')
+
+    def test_passes_correct_list_to_template(self):
+        list_ = List.objects.create()
+        Item.objects.create(text='Item 1', list=list_)
+
+        response = self.client.get(f'/lists/{list_.id}/')
+        self.assertEqual(response.context['list'], list_)
+
+
 
     def test_can_save_a_POST_request(self):
         response = self.client.post('/lists/new', data={'item_text': 'A new list item'})
@@ -65,4 +98,5 @@ class ListViewTest(TestCase):
     def test_redirects_after_POST(self):
         response = self.client.post('/lists/new', data={'item_text': 'A new list item'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/the-new-page/')
+        new_list = List.objects.first()
+        self.assertEqual(response['location'], f'/lists/{new_list.id}/')
