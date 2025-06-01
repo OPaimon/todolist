@@ -24,4 +24,5 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path('', views.home_page, name='home'),  # Include the URLs from the lists app
     path('lists/the-new-page/', views.view_list, name='view_list'),
+    path('lists/new', views.new_list, name='new_list'),
 ]
