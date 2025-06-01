@@ -2,14 +2,16 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
 from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 class NewVisitorTest(StaticLiveServerTestCase):
     def setUp(self):
-        self.browser = webdriver.Chrome()
+        self.service = Service(ChromeDriverManager().install())
+        self.browser = webdriver.Chrome(service=self.service)
         real_server = os.environ.get('REAL_SERVER')
         if real_server:
             self.live_server_url = 'http://' + real_server
