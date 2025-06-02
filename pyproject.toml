@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "django>=5.2.1",
+    "fabric>=3.2.2",
     "gunicorn>=23.0.0",
     "selenium>=4.33.0",
     "webdriver-manager>=4.0.2",

@@ -1,0 +1,16 @@
+[Unit]
+Description=Gunicorn server for DOMAIN_NAME
+
+[Service]
+Restart=on-failure
+User=REMOTE_USER
+RuntimeDirectory=gunicorn
+RuntimeDirectoryMode=0755
+WorkingDirectory=/home/REMOTE_USER/DOMAIN_NAME/todolist
+ExecStart=/home/REMOTE_USER/DOMAIN_NAME/todolist/.venv/bin/gunicorn --bind unix:/run/gunicorn/DOMAIN_NAME.socket notes.wsgi:application
+Environment="DJANGO_DEBUG=False"
+Environment="DJANGO_ALLOWED_HOSTS=SERVER_IP,DOMAIN_NAME"
+Environment="DJANGO_CSRF_TRUSTED_ORIGINS=https://DOMAIN_NAME"
+
+[Install]
+WantedBy=multi-user.target
